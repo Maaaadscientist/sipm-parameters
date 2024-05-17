@@ -75,7 +75,7 @@ print(f"Job scripts created in directory: {job_dir}")
 
 os.system(f'cp {wrapper_script_path} {job_dir}')
 os.chmod(f'{job_dir}/{wrapper_script_path}', 0o755)
-submit = input('Submit jobs? Y/N')
+submit = input('Submit jobs? Y/N\n')
 if submit.lower() == 'y':
     # Count the number of job scripts
     num_job_scripts = len([name for name in os.listdir(job_dir) if name.startswith('job_') and name.endswith('.sh')])

@@ -103,8 +103,10 @@ for ch in available_channels:
     all_values.append(combined_value)
     
     # Plot the DCR with error bars
-    plt.errorbar(ov_range, dcr_interpolated, yerr=dcr_err_interpolated, label=f'Channel {ch_selected}', capsize=3)
+    #plt.errorbar(ov_range, dcr_interpolated, yerr=dcr_err_interpolated, label=f'Channel {ch_selected}', capsize=3)
 
+    print(f"dcr: TSN-{int(tsn_selected)} Ch-{int(ch)} processed")
+print("-----------------------------------------------------------------")
 ## Customize the plot
 #plt.title(f'DCR vs Overvoltage for TSN {tsn_selected}')
 #plt.xlabel('Overvoltage (V)')

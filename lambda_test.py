@@ -99,6 +99,7 @@ for ch_selected in available_channels:
     all_headers.append(combined_header)
     all_values.append(combined_values)
 
+    print(f"crosstalk: TSN-{int(tsn_selected)} Ch-{int(ch_selected)} processed")
     # Plot the lambda with error bars
     #plt.figure(figsize=(12, 6))
     #plt.errorbar(ov_range, lambda_interpolated, yerr=lambda_err_interpolated, label=f'Channel {ch_selected}', capsize=3)
@@ -108,6 +109,7 @@ for ch_selected in available_channels:
     #plt.legend()
     #plt.grid(True)
     #plt.show()
+print("-----------------------------------------------------------------")
 
 # Save headers and values to CSV
 output_path = args.output

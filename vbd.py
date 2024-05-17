@@ -61,6 +61,8 @@ for ch_selected in available_channels:
         values = f"{int(tsn_selected)},{int(ch_selected)},{int(pos)},{vbd:.4f},{vbd_err:.5f},{vbd_diff:.4f}"
         all_values.append(values)
 
+    print(f"vbd: TSN-{int(tsn_selected)} Ch-{int(ch_selected)} processed")
+print("---------------------------Finished------------------------------")
 # Write to the output CSV file
 with open(output_path, 'w') as f:
     f.write(",".join(all_headers) + '\n')

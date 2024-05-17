@@ -112,7 +112,9 @@ for ch in available_channels:
     all_values.append(combined_value)
     
     # Plot the gain with error bars
-    plt.errorbar(ov_range, gain_abs_interpolated, yerr=gain_abs_err_interpolated, label=f'Channel {ch_selected}', capsize=3)
+    #plt.errorbar(ov_range, gain_abs_interpolated, yerr=gain_abs_err_interpolated, label=f'Channel {ch_selected}', capsize=3)
+    print(f"gain: TSN-{int(tsn_selected)} Ch-{int(ch)} processed")
+print("-----------------------------------------------------------------")
 
 ## Customize the plot
 #plt.title(f'Gain vs Overvoltage for TSN {tsn_selected}')

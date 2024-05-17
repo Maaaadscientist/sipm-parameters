@@ -137,8 +137,9 @@ for ch in available_channels:
         combined_value += ',' + errors
     all_headers.append(combined_header)
     all_values.append(combined_value)
+    print(f"afterpulse: TSN-{int(tsn_selected)} Ch-{int(ch_selected)} processed")
 
-print(all_headers)
+print("-----------------------------------------------------------------")
 
 # Save headers and values to CSV
 output_path = args.output

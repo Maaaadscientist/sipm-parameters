@@ -197,6 +197,8 @@ for ch in available_channels:
     #plt.legend()
     #plt.grid(True)
     #plt.show()
+    print(f"pde: TSN-{int(tsn_selected)} Ch-{int(ch)} processed")
+print("-----------------------------------------------------------------")
 output_path = args.output
 with open(output_path, 'w') as f:
     write_header = True
