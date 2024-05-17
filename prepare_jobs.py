@@ -108,10 +108,10 @@ fi
     with open(wrapper_script_path, 'w') as wrapper_script:
         wrapper_script.write(wrapper_script_content)
     
-    os.chmod(wrapper_name, 0o755)
+    os.chmod(wrapper_script_path, 0o755)
     
     # Count the number of job scripts
-    num_job_scripts = len([name for name in os.listdir(job_dir+'scripts') if name.startswith('job_') and name.endswith('.sh')])
+    num_job_scripts = len([name for name in os.listdir(job_dir+'/scripts') if name.startswith('job_') and name.endswith('.sh')])
     
     # Submit the jobs using hep_sub
     submit_command = f"hep_sub -e /dev/null -o /dev/null {wrapper_script_path} -argu \"%{{ProcId}}\" -n {num_job_scripts}"
