@@ -15,7 +15,7 @@ args = parser.parse_args()
 # Get absolute paths
 config_path = os.path.abspath(args.config)
 job_dir = os.path.abspath(args.job_dir)
-wrapper_script_path = os.path.abspath(args.wrapper_script_path)
+wrapper_script_path = 'wrapper_script.sh'#os.path.abspath(args.wrapper)
 
 # Load configuration from YAML file
 with open(config_path, 'r') as file:
@@ -49,7 +49,7 @@ output_prefixes = ['pde', 'dcr', 'lambda', 'ap', 'gain', 'vbd']
 python_scripts_paths = [os.path.abspath(script) for script in python_scripts]
 combine_script_path = os.path.abspath('combine_all_csv.py')
 
-python_path = 'python3.12'
+python_path = 'python3'
 # Create a bash script for each tsn
 for tsn in tsn_list:
     tsn = int(tsn)
@@ -73,11 +73,15 @@ for tsn in tsn_list:
 
 print(f"Job scripts created in directory: {job_dir}")
 
-# Count the number of job scripts
-num_job_scripts = len([name for name in os.listdir(job_dir) if name.startswith('job_') and name.endswith('.sh')])
-
-# Submit the jobs using hep_sub
-submit_command = f"hep_sub -e /dev/null -o /dev/null {wrapper_script_path} -argu \"%{{ProcId}}\" -n {num_job_scripts}"
-subprocess.run(submit_command, shell=True, check=True)
-
-print(f"Submitted {num_job_scripts} jobs using hep_sub.")
+os.system(f'cp {wrapper_script_path} {job_dir}')
+os.chmod(f'{job_dir}/{wrapper_script_path}', 0o755)
+submit = input('Submit jobs? Y/N')
+if submit.lower() == 'y':
+    # Count the number of job scripts
+    num_job_scripts = len([name for name in os.listdir(job_dir) if name.startswith('job_') and name.endswith('.sh')])
+    
+    # Submit the jobs using hep_sub
+    submit_command = f"hep_sub -e /dev/null -o /dev/null {job_dir}/{wrapper_script_path} -argu \"%{{ProcId}}\" -n {num_job_scripts}"
+    subprocess.run(submit_command, shell=True, check=True)
+    
+    print(f"Submitted {num_job_scripts} jobs using hep_sub.")
