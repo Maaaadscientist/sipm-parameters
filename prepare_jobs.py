@@ -9,11 +9,13 @@ import subprocess
 parser = argparse.ArgumentParser(description='Prepare job submission scripts for cluster.')
 parser.add_argument('--config', type=str, required=True, help='Path to the YAML configuration file')
 parser.add_argument('--job_dir', type=str, required=True, help='Directory to save job scripts')
+parser.add_argument('--wrapper', type=str, required=True, help='Path to the wrapper script')
 args = parser.parse_args()
 
 # Get absolute paths
 config_path = os.path.abspath(args.config)
 job_dir = os.path.abspath(args.job_dir)
+wrapper_script_path = os.path.abspath(args.wrapper_script_path)
 
 # Load configuration from YAML file
 with open(config_path, 'r') as file:
