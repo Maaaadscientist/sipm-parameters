@@ -3,6 +3,7 @@ import pandas as pd
 import argparse
 import yaml
 import os
+import subprocess
 
 # Set up argument parser
 parser = argparse.ArgumentParser(description='Prepare job submission scripts for cluster.')
@@ -70,3 +71,11 @@ for tsn in tsn_list:
 
 print(f"Job scripts created in directory: {job_dir}")
 
+# Count the number of job scripts
+num_job_scripts = len([name for name in os.listdir(job_dir) if name.startswith('job_') and name.endswith('.sh')])
+
+# Submit the jobs using hep_sub
+submit_command = f"hep_sub -e /dev/null -o /dev/null {wrapper_script_path} -argu \"%{{ProcId}}\" -n {num_job_scripts}"
+subprocess.run(submit_command, shell=True, check=True)
+
+print(f"Submitted {num_job_scripts} jobs using hep_sub.")

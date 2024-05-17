@@ -1,0 +1,8 @@
+database:
+  path: '/junofs/users/wanghanwen/database/destination_database.db'
+
+reference_table:
+  path: '/workfs2/juno/wanghanwen/sipm-parameters/updated_reference_table.csv'
+
+gain_factors:
+  path: '/workfs2/juno/wanghanwen/sipm-parameters/gain_factors.csv'
