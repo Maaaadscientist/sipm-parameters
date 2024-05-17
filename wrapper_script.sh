@@ -1,6 +1,6 @@
 #!/bin/bash
 # Directory containing the job scripts
-jobs_dir="/junofs/users/wanghanwen/plotter/spectrums-study/final_outputs/jobs"
+jobs_dir=
 
 # Argument handling for the specific job script to execute
 if [ $# -ne 1 ]; then
@@ -11,7 +11,7 @@ fi
 procid=$1  # The provided ProcId determines which job script to run
 
 # Get an array of job scripts
-scripts=( $(ls $jobs_dir/job_script_tsn_*_ch_*.sh) )
+scripts=( $(ls $jobs_dir/*.sh) )
 
 # Calculate total available jobs
 total_jobs=${#scripts[@]}
