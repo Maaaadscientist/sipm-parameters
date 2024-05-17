@@ -9,7 +9,6 @@ import subprocess
 parser = argparse.ArgumentParser(description='Prepare job submission scripts for cluster.')
 parser.add_argument('--config', type=str, required=True, help='Path to the YAML configuration file')
 parser.add_argument('--job_dir', type=str, required=True, help='Directory to save job scripts')
-parser.add_argument('--wrapper', type=str, required=True, help='Path to the wrapper script')
 args = parser.parse_args()
 
 # Get absolute paths
@@ -78,7 +77,7 @@ os.chmod(f'{job_dir}/{wrapper_script_path}', 0o755)
 submit = input('Submit jobs? Y/N\n')
 if submit.lower() == 'y':
     # Count the number of job scripts
-    num_job_scripts = len([name for name in os.listdir(job_dir) if name.startswith('job_') and name.endswith('.sh')])
+    num_job_scripts = len([name for name in os.listdir(job_dir+'/scripts') if name.startswith('job_') and name.endswith('.sh')])
     
     # Submit the jobs using hep_sub
     submit_command = f"hep_sub -e /dev/null -o /dev/null {job_dir}/{wrapper_script_path} -argu \"%{{ProcId}}\" -n {num_job_scripts}"
