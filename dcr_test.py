@@ -24,11 +24,12 @@ conn = sqlite3.connect(database_path)
 # Query to get the available channels for the given tsn
 tsn_selected = args.tsn
 query_channels = f"""
-SELECT DISTINCT ch
+SELECT ch
 FROM csv
-WHERE tsn = {tsn_selected};
+WHERE tsn = {tsn_selected}
+GROUP BY ch
+HAVING COUNT(DISTINCT vol) >= 5;
 """
-
 # Execute the query and load the results into a DataFrame
 channels_df = pd.read_sql_query(query_channels, conn)
 
