@@ -1,0 +1,8 @@
+database:
+  path: '/Users/allen/codes/sipm-parameters/destination_database.db'
+
+reference_table:
+  path: '/Users/allen/codes/sipm-parameters/updated_reference_table.csv'
+
+gain_factors:
+  path: '/Users/allen/codes/sipm-parameters/gain_factors.csv'
