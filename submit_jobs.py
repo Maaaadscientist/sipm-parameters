@@ -19,7 +19,7 @@ if submit.lower() == 'y':
     # Write the wrapper script with the actual job_dir path
     wrapper_script_content = """#!/bin/bash
 # Directory containing the job scripts
-jobs_dir={job_dir}
+jobs_dir={job_dir}/scripts
 
 # Argument handling for the specific job script to execute
 if [ $# -ne 1 ]; then
