@@ -1,0 +1,29 @@
+pde:
+  lower_bound: 0.2
+  upper_bound: 1
+  bin_width: 0.002
+
+dcr:
+  lower_bound: 0.0
+  upper_bound: 1000
+  bin_width: 1
+
+lambda:
+  lower_bound: 0.0
+  upper_bound: 1.0
+  bin_width: 0.002
+
+ap_mean:
+  lower_bound: 0.0
+  upper_bound: 0.05
+  bin_width: 0.0005
+
+ap_var:
+  lower_bound: 0.0
+  upper_bound: 0.05
+  bin_width: 0.0005
+
+gain_abs:
+  lower_bound: 0
+  upper_bound: 5000000
+  bin_width: 10000
