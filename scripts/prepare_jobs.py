@@ -63,7 +63,7 @@ for tsn in tsn_list:
             job_script.write(f"{python_path} {script_path} --config {config_path} --tsn {tsn} --output {output_file}\n")
             csv_args += f'{output_file} '
             job_script.write('sleep 1\n')
-        job_script.write(f"{python_path} {combine_script_path} {csv_args} {job_dir}/outputs/output_{tsn}.csv -k tsn,ch,pos\n")
+        job_script.write(f"{python_path} {combine_script_path} {csv_args} {job_dir}/outputs/output_{tsn}.csv -k tsn,ch\n")
         job_script.write('sleep 1\n')
         job_script.write(f'rm *_{tsn}.csv')
     
