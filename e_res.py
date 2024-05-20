@@ -252,5 +252,6 @@ def main():
     hist_dcr_ap.Write()
     f_output.Close()
 
+    f1.Close()
 if __name__ == "__main__":
     main()
