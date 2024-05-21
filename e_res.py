@@ -119,12 +119,16 @@ def simulate_dcr(ov_str):
     # 360ns, 4024 tiles, with each tile having 32 6mm*12mm chips
     init_pe = dcr * 360 * 1e-9 * (4024 * 32 * 6 * 12) 
     pe = np.random.poisson(init_pe)
-    pe_ct = pe
     lambda_hist = get_hist(f1, pct_name)
+    pe_ct = pe
     for _ in range(int(pe)):
-        lambda_ = lambda_hist.GetRandom()
+        lambda_ = lambda_hist.GetRandom()* corr_factor
         pe_ct += generate_random_borel(lambda_)
 
+    pe_ct_air = pe
+    for _ in range(int(pe)):
+        lambda_air = lambda_hist.GetRandom()
+        pe_ct_air += generate_random_borel(lambda_air)
     # Simulate afterpulsing
     
     ap_hist = get_hist(f1, ap_name)
@@ -145,11 +149,12 @@ def simulate_dcr(ov_str):
     for _ in range(int(pe_ap)):
         smear_gain += np.random.normal(1, single_pe_resolution)
 
-    corr_ct = pe_ct * (1-lambda_hist.GetMean())
-    corr_ap = (pe_ap - pe_ct * ap_hist.GetMean()) * (1-lambda_hist.GetMean())
-    corr_q  = (gain - pe_ct * ap_hist.GetMean()) * (1-lambda_hist.GetMean())
-    corr_qres  = (smear_gain - pe_ct * ap_hist.GetMean()) * (1-lambda_hist.GetMean())
-    return init_pe, pe, corr_ct, corr_ap, corr_q , corr_qres
+    corr_ct = pe_ct * (1-lambda_hist.GetMean() * corr_factor)
+    corr_air_ct = pe_ct_air * (1-lambda_hist.GetMean())
+    corr_ap = (pe_ap - pe_ct * ap_hist.GetMean()) * (1-lambda_hist.GetMean()* corr_factor )
+    corr_q  = (gain - pe_ct * ap_hist.GetMean()) * (1-lambda_hist.GetMean()* corr_factor)
+    corr_qres  = (smear_gain - pe_ct * ap_hist.GetMean()) * (1-lambda_hist.GetMean()* corr_factor)
+    return init_pe, pe, corr_ct, corr_ap, corr_q , corr_qres, corr_air_ct
         
 def main():
     init_photons = int(PHOTONS_PER_TEST * energy)
@@ -160,6 +165,7 @@ def main():
     h_pte = ROOT.TH1F("hist_PTE", "hist_PTE", Nbins,0,Nbins)
     h_pde = ROOT.TH1F("hist_PDE", "hist_PDE", Nbins,0,Nbins)
     h_ct = ROOT.TH1F("hist_ct", "hist_ct", Nbins,0,Nbins)
+    h_ct_air = ROOT.TH1F("hist_ct_air", "hist_ct_air", Nbins,0,Nbins)
     h_ap = ROOT.TH1F("hist_ap", "hist_ap", Nbins,0,Nbins)
     h_dcr = ROOT.TH1F("hist_dcr", "hist_dcr", Nbins,0,Nbins)
     h_charge = ROOT.TH1F("hist_charge", "hist_charge", Nbins,0,Nbins)
@@ -195,6 +201,7 @@ def main():
         dcr_pe_ctap= dcr_results[3]
         dcr_charge=dcr_results[4]
         dcr_qres=dcr_results[5]
+        dcr_ct_air=dcr_results[6]
         hist_dcr_init.Fill(dcr_init)
         hist_dcr_poisson.Fill(dcr_poisson_pe)
         hist_dcr_ct.Fill(dcr_pe_ct)
@@ -208,28 +215,34 @@ def main():
         for i in range(int(detected_photons)):
             lambda_ = lambda_hist.GetRandom() * corr_factor # corrected for external CT
             ct_pe += generate_random_borel(lambda_)
-        corr_ct = ct_pe * (1 - lambda_hist.GetMean()) + dcr_pe_ct - dcr_init
+        corr_ct = ct_pe * (1 - lambda_hist.GetMean() * corr_factor) + dcr_pe_ct - dcr_init
+
+        ct_air_pe = detected_photons
+        for i in range(int(detected_photons)):
+            lambda_air = lambda_hist.GetRandom() # corrected for external CT
+            ct_air_pe += generate_random_borel(lambda_air)
+        corr_air_ct = ct_air_pe * (1 - lambda_hist.GetMean()) + dcr_ct_air - dcr_init
 
         ap_pe = ct_pe
         ap_hist = get_hist(f1, f"ap_mean_{ov:.1f}".replace(".","_"))
         for i in range(int(ct_pe)):
             pap = ap_hist.GetRandom()
             ap_pe += np.random.normal(loc=pap, scale=pap)
-        corr_ap = (ap_pe - ct_pe * ap_hist.GetMean()) * (1 - lambda_hist.GetMean()) + dcr_pe_ctap - dcr_init
+        corr_ap = (ap_pe - ct_pe * ap_hist.GetMean()) * (1 - lambda_hist.GetMean() * corr_factor) + dcr_pe_ctap - dcr_init
 
         gain = 0
         gain_hist = get_hist(f1, f"gain_abs_{ov:.1f}".replace(".","_"))
         mean_gain = gain_hist.GetMean()
         for _ in range(int(ap_pe)):
             gain += gain_hist.GetRandom() / mean_gain
-        corr_q = (gain - ct_pe * ap_hist.GetMean()) * (1 - lambda_hist.GetMean()) + dcr_charge - dcr_init
+        corr_q = (gain - ct_pe * ap_hist.GetMean()) * (1 - lambda_hist.GetMean() *  corr_factor) + dcr_charge - dcr_init
             
         
         smear_gain = 0
         for _ in range(int(ap_pe)):
             smear_gain += np.random.normal(1, single_pe_resolution)
         
-        corr_qres  = (smear_gain - ct_pe * ap_hist.GetMean()) * (1-lambda_hist.GetMean()) + dcr_qres - dcr_init
+        corr_qres  = (smear_gain - ct_pe * ap_hist.GetMean()) * (1-lambda_hist.GetMean() * corr_factor) + dcr_qres - dcr_init
             
         h_init.Fill(PHOTONS_PER_TEST * energy)
         h_LS.Fill(LS_photons)
@@ -237,6 +250,7 @@ def main():
         h_pde.Fill(detected_photons / (PTE * PDE))
         h_dcr.Fill(initial_pe/ (PTE * PDE) )
         h_ct.Fill(corr_ct/ (PTE * PDE))
+        h_ct_air.Fill(corr_air_ct/ (PTE * PDE))
         h_ap.Fill(corr_ap/ (PTE * PDE))
         h_charge.Fill(corr_q/ (PTE * PDE))
         h_qres.Fill(corr_qres/ (PTE * PDE))
@@ -249,6 +263,7 @@ def main():
     h_pde.Write()
     h_dcr.Write()
     h_ct.Write()
+    h_ct_air.Write()
     h_ap.Write()
     h_charge.Write()
     h_qres.Write()
