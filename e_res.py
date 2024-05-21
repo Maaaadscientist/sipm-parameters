@@ -13,7 +13,13 @@ PHOTONS_PER_TEST = 9846  # Number of photons simulated in each test
 single_pe_resolution = 0.15
 # Example parameters
 #dcr = 50.
-PTE = 0.836  # Probability of photon hitting SiPM active area 815074 / 975251
+#PTE = 0.836  # Probability of photon hitting SiPM active area 815074 / 975251
+PTE = 0.8  # Probability of photon hitting SiPM active area 1601665 / 2000000
+transmittance = 0.9
+PTE_ir = 0.75
+corr_factor = 2.05 * PTE_ir # arxiv 2312.12901
+
+
 keys = [round(2.0 + 0.1 * i, 1) for i in range(51)]
 
 #optical_crosstalk_param = 0.2  # Parameter for generalized Poisson distribution
@@ -194,13 +200,13 @@ def main():
         hist_dcr_ct.Fill(dcr_pe_ct)
         hist_dcr_ap.Fill(dcr_pe_ctap)
         hit_photons = np.random.binomial(LS_photons, PTE) 
-        PDE = average_value_from_root(f1, f"pde_{ov:.1f}".replace(".","_")) 
+        PDE = average_value_from_root(f1, f"pde_{ov:.1f}".replace(".","_")) / transmittance # PTE removed
         detected_photons = np.random.binomial(hit_photons, PDE)
         initial_pe = detected_photons + dcr_poisson_pe - dcr_init
         ct_pe = detected_photons
         lambda_hist = get_hist(f1, f"lambda_{ov:.1f}".replace(".","_"))
         for i in range(int(detected_photons)):
-            lambda_ = lambda_hist.GetRandom()
+            lambda_ = lambda_hist.GetRandom() * corr_factor # corrected for external CT
             ct_pe += generate_random_borel(lambda_)
         corr_ct = ct_pe * (1 - lambda_hist.GetMean()) + dcr_pe_ct - dcr_init
 
