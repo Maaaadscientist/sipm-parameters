@@ -4,6 +4,7 @@ import math
 import os
 import time
 import scipy.stats as stats
+import scipy.special
 import matplotlib.pyplot as plt
 import ROOT
 import argparse  # Import argparse module
@@ -94,7 +95,12 @@ def generate_random_generalized_poisson(mu, lambda_, max_k=35):
     return np.random.choice(range(max_k), p=normalized_pmf)
 
 def borel_pmf(k, lambda_):
-    return (lambda_ * k)**(k - 1) * np.exp(-k * lambda_) / math.factorial(k)
+    # Use logarithms for numerical stability
+    log_pmf = (k - 1) * np.log(lambda_ * k) - k * lambda_ - scipy.special.gammaln(k + 1)
+    return np.exp(log_pmf)
+#
+#def borel_pmf(k, lambda_):
+#    return (lambda_ * k)**(k - 1) * np.exp(-k * lambda_) / math.factorial(k)
 
 
 def generate_random_borel(lambda_, max_k=32):
@@ -179,7 +185,7 @@ def main():
     for i in range(N):
         
         # Refresh output every X events (e.g., every 10 events)
-        if (i + 1) % 100 == 0 or i == N - 1:
+        if (i + 1) % 10 == 0 or i == N - 1:
             elapsed_time = time.time() - start_time
             percent_complete = ((i + 1) / N) * 100
             avg_time_per_event = elapsed_time / (i + 1)
@@ -230,7 +236,7 @@ def main():
         ct_mean_pe = detected_photons
         lambda_mean = lambda_hist.GetMean() * corr_factor # corrected for external CT
         for i in range(int(detected_photons)):
-            ct_mean_pe += generate_random_borel(lambda_mean)
+            ct_mean_pe += generate_random_borel(lambda_mean, 80)
         #corr_air_ct = ct_air_pe * (1 - lambda_hist.GetMean()) + dcr_ct_air - dcr_init
         corr_mean_ct = ct_mean_pe * (1 - lambda_hist.GetMean() * corr_factor) + dcr_qres - dcr_init
 
