@@ -82,7 +82,7 @@ def generalized_poisson_pmf(k, mu, lambda_):
     factorial_term = math.factorial(k)
     return (main_term * exp_term) / factorial_term
 
-def generate_random_generalized_poisson(mu, lambda_, max_k=20):
+def generate_random_generalized_poisson(mu, lambda_, max_k=35):
     # Generate PMF values
     pmf_values = [generalized_poisson_pmf(k, mu, lambda_) for k in range(max_k)]
 
@@ -209,33 +209,38 @@ def main():
         hit_photons = np.random.binomial(LS_photons, PTE) 
         PDE = average_value_from_root(f1, f"pde_{ov:.1f}".replace(".","_")) / transmittance # PTE removed
         detected_photons = np.random.binomial(hit_photons, PDE)
-        initial_pe = detected_photons + dcr_poisson_pe - dcr_init
+        #initial_pe = detected_photons + dcr_poisson_pe - dcr_init
+        initial_pe = detected_photons + dcr_qres - dcr_init
         ct_pe = detected_photons
         lambda_hist = get_hist(f1, f"lambda_{ov:.1f}".replace(".","_"))
         for i in range(int(detected_photons)):
             lambda_ = lambda_hist.GetRandom() * corr_factor # corrected for external CT
             ct_pe += generate_random_borel(lambda_)
-        corr_ct = ct_pe * (1 - lambda_hist.GetMean() * corr_factor) + dcr_pe_ct - dcr_init
+        #corr_ct = ct_pe * (1 - lambda_hist.GetMean() * corr_factor) + dcr_pe_ct - dcr_init
+        corr_ct = ct_pe * (1 - lambda_hist.GetMean() * corr_factor) + dcr_qres - dcr_init
 
         ct_air_pe = detected_photons
         for i in range(int(detected_photons)):
             lambda_air = lambda_hist.GetRandom() # corrected for external CT
             ct_air_pe += generate_random_borel(lambda_air)
-        corr_air_ct = ct_air_pe * (1 - lambda_hist.GetMean()) + dcr_ct_air - dcr_init
+        #corr_air_ct = ct_air_pe * (1 - lambda_hist.GetMean()) + dcr_ct_air - dcr_init
+        corr_air_ct = ct_air_pe * (1 - lambda_hist.GetMean()) + dcr_qres - dcr_init
 
         ap_pe = ct_pe
         ap_hist = get_hist(f1, f"ap_mean_{ov:.1f}".replace(".","_"))
         for i in range(int(ct_pe)):
             pap = ap_hist.GetRandom()
             ap_pe += np.random.normal(loc=pap, scale=pap)
-        corr_ap = (ap_pe - ct_pe * ap_hist.GetMean()) * (1 - lambda_hist.GetMean() * corr_factor) + dcr_pe_ctap - dcr_init
+        #corr_ap = (ap_pe - ct_pe * ap_hist.GetMean()) * (1 - lambda_hist.GetMean() * corr_factor) + dcr_pe_ctap - dcr_init
+        corr_ap = (ap_pe - ct_pe * ap_hist.GetMean()) * (1 - lambda_hist.GetMean() * corr_factor) + dcr_qres - dcr_init
 
         gain = 0
         gain_hist = get_hist(f1, f"gain_abs_{ov:.1f}".replace(".","_"))
         mean_gain = gain_hist.GetMean()
         for _ in range(int(ap_pe)):
             gain += gain_hist.GetRandom() / mean_gain
-        corr_q = (gain - ct_pe * ap_hist.GetMean()) * (1 - lambda_hist.GetMean() *  corr_factor) + dcr_charge - dcr_init
+        #corr_q = (gain - ct_pe * ap_hist.GetMean()) * (1 - lambda_hist.GetMean() *  corr_factor) + dcr_charge - dcr_init
+        corr_q = (gain - ct_pe * ap_hist.GetMean()) * (1 - lambda_hist.GetMean() *  corr_factor) + dcr_qres - dcr_init
             
         
         smear_gain = 0
