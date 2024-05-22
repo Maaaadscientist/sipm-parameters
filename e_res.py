@@ -97,7 +97,7 @@ def borel_pmf(k, lambda_):
     return (lambda_ * k)**(k - 1) * np.exp(-k * lambda_) / math.factorial(k)
 
 
-def generate_random_borel(lambda_, max_k=20):
+def generate_random_borel(lambda_, max_k=32):
     # Generate PMF values
     pmf_values = [borel_pmf(k+1, lambda_) for k in range(max_k)]
 
@@ -165,6 +165,7 @@ def main():
     h_pte = ROOT.TH1F("hist_PTE", "hist_PTE", Nbins,0,Nbins)
     h_pde = ROOT.TH1F("hist_PDE", "hist_PDE", Nbins,0,Nbins)
     h_ct = ROOT.TH1F("hist_ct", "hist_ct", Nbins,0,Nbins)
+    h_ct_mean = ROOT.TH1F("hist_ct_mean", "hist_ct_mean", Nbins,0,Nbins)
     h_ct_air = ROOT.TH1F("hist_ct_air", "hist_ct_air", Nbins,0,Nbins)
     h_ap = ROOT.TH1F("hist_ap", "hist_ap", Nbins,0,Nbins)
     h_dcr = ROOT.TH1F("hist_dcr", "hist_dcr", Nbins,0,Nbins)
@@ -226,6 +227,13 @@ def main():
         #corr_air_ct = ct_air_pe * (1 - lambda_hist.GetMean()) + dcr_ct_air - dcr_init
         corr_air_ct = ct_air_pe * (1 - lambda_hist.GetMean()) + dcr_qres - dcr_init
 
+        ct_mean_pe = detected_photons
+        lambda_mean = lambda_hist.GetMean() * corr_factor # corrected for external CT
+        for i in range(int(detected_photons)):
+            ct_mean_pe += generate_random_borel(lambda_mean)
+        #corr_air_ct = ct_air_pe * (1 - lambda_hist.GetMean()) + dcr_ct_air - dcr_init
+        corr_mean_ct = ct_mean_pe * (1 - lambda_hist.GetMean() * corr_factor) + dcr_qres - dcr_init
+
         ap_pe = ct_pe
         ap_hist = get_hist(f1, f"ap_mean_{ov:.1f}".replace(".","_"))
         for i in range(int(ct_pe)):
@@ -255,6 +263,7 @@ def main():
         h_pde.Fill(detected_photons / (PTE * PDE))
         h_dcr.Fill(initial_pe/ (PTE * PDE) )
         h_ct.Fill(corr_ct/ (PTE * PDE))
+        h_ct_mean.Fill(corr_mean_ct/ (PTE * PDE))
         h_ct_air.Fill(corr_air_ct/ (PTE * PDE))
         h_ap.Fill(corr_ap/ (PTE * PDE))
         h_charge.Fill(corr_q/ (PTE * PDE))
@@ -268,6 +277,7 @@ def main():
     h_pde.Write()
     h_dcr.Write()
     h_ct.Write()
+    h_ct_mean.Write()
     h_ct_air.Write()
     h_ap.Write()
     h_charge.Write()
